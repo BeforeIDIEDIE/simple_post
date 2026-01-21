@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시판</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <script src="app.js"></script>
+  <main class="page">
+    <section class="form-card">
+      <h1 class="title">simple board</h1>
+      <form id="postForm" class="form">
+        <label class="field">
+          <span class="label">author name</span>
+          <input id="authorInput" name="author" type="text" maxlength="20" placeholder="enter your name" required>
+        </label>
+        <label class="field">
+          <span class="label">post content</span>
+          <textarea id="contentInput" name="content" rows="4" maxlength="1000" placeholder="enter your content" required></textarea>
+        </label>
+        <button type="submit" class="submit-btn">submit</button>
+      </form>
+    </section>
+
+    <section class="list-card">
+      <div class="list-header">
+        <h2 class="subtitle">post list</h2>
+        <span class="count" id="postCount">0 posts</span>
+      </div>
+      <div id="postList" class="post-list" role="feed" aria-live="polite"></div>
+    </section>
+  </main>
+
+  
+</body>
+</html>
