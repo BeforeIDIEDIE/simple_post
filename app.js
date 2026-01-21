@@ -1,4 +1,6 @@
 (() => {
+  // IIFE(Immediately Invoked Function Expression) : 즉시 실행 함수 표현식
+
   const STORAGE_KEY = "simple-board-posts";
 
   const form = document.getElementById("postForm");
@@ -10,6 +12,7 @@
   /**
    * 현재 저장된 게시글 목록을 로드하고 파싱한다.
    * @returns {Array<{author:string, content:string, createdAt:number}>}
+   * //함수의 반환값이라는 뜻, 또한 반환값은 배열열
    */
   function loadPosts() {
     try {
@@ -41,10 +44,10 @@
    * @param {string} content
    */
   function addPost(author, content) {
-    const posts = loadPosts();
+    const posts = loadPosts();//이전 포스트 불러오기기
     const next = [
       { author, content, createdAt: Date.now() },
-      ...posts
+      ...posts// post는 하나의 리스트, ...은 posts 리스트의 요소를 하나하나 next 리스트에 추가하는 역할
     ];
     savePosts(next);
     renderPosts(next);
