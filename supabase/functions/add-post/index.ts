@@ -6,9 +6,9 @@
 
 
 //Deno환경에서 실행되게 설계하였음
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import "@supabase/functions-js/edge-runtime.d.ts"
 //라이브러리 불러오기
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
 //supabase 클라이언트 생성
 
 //CORS 헤더: 브라우저 보안 정책상, 다른 도메인(내 웹사이트)에서 이 서버(Edge Function)로 데이터를 보낼 때 필요한 헤더들
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     // 실패 시 에러 메시지 반환
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     })
