@@ -9,6 +9,8 @@
   const postListEl = document.getElementById("postList");
   const postCountEl = document.getElementById("postCount");
 
+  //현재 SUPABASE상에서 SQL까지 작성, APP.JS에서 불러오는 작업을 해야함.
+
   /**
    * 현재 저장된 게시글 목록을 로드하고 파싱한다.
    * @returns {Array<{author:string, content:string, createdAt:number}>}
