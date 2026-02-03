@@ -1,27 +1,37 @@
-(() => {
-  // IIFE(Immediately Invoked Function Expression) : 즉시 실행 함수 표현식
+//npm run dev//package.json 에 정의된 명령어 실행 시 작동하는 진입점 파일
+//npm run build//프로덕션 빌드 시 작동하는 진입점 파일
+//npm run preview//프로덕션 빌드 결과물을 로컬에서 미리보기 할 때 작동하는 진입점 파일
 
-  const STORAGE_KEY = "simple-board-posts";
+// type="module" 사용 시 IIFE 불필요 (이미 격리된 스코프)
 
-  const form = document.getElementById("postForm");
-  const authorInput = document.getElementById("authorInput");
-  const contentInput = document.getElementById("contentInput");
-  const postListEl = document.getElementById("postList");
-  const postCountEl = document.getElementById("postCount");
+// import.meta는 ES module에서만 사용 가능
 
-  //현재 SUPABASE상에서 SQL까지 작성, APP.JS에서 불러오는 작업을 해야함.
+// Supabase 설정 (환경변수에서 로드)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
+const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/add-post`;
+
+const form = document.getElementById("postForm");
+const authorInput = document.getElementById("authorInput");
+const contentInput = document.getElementById("contentInput");
+const postListEl = document.getElementById("postList");
+const postCountEl = document.getElementById("postCount");
 
   /**
-   * 현재 저장된 게시글 목록을 로드하고 파싱한다.
-   * @returns {Array<{author:string, content:string, createdAt:number}>}
-   * //함수의 반환값이라는 뜻, 또한 반환값은 배열열
+   * Supabase에서 게시글 목록을 로드한다.
+   * @returns {Promise<Array<{author:string, content:string, created_at:string}>>}
    */
-  function loadPosts() {
+  async function loadPosts() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/posts?order=created_at.desc`, {
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to load posts");
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error("Failed to load posts", error);
       return [];
@@ -33,31 +43,43 @@
    * @param {Array<{author:string, content:string, createdAt:number}>} posts
    */
   function savePosts(posts) {
+    // Supabase 사용 시 필요 없음 (DB가 자동으로 저장)
+  }
+
+  /**
+   * 새로운 게시글을 Edge Function으로 전송한다.
+   * @param {string} author
+   * @param {string} content
+   */
+  async function addPost(author, content) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+      const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({ author, content }),
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to add post");
+      }
+
+      // 성공 시 글 목록 새로고침
+      const posts = await loadPosts();
+      renderPosts(posts);
     } catch (error) {
-      console.error("Failed to save posts", error);
+      console.error("Failed to add post", error);
+      alert(`오류: ${error.message}`);
     }
   }
 
   /**
-   * 새로운 게시글을 만들어 목록에 추가한다.
-   * @param {string} author
-   * @param {string} content
-   */
-  function addPost(author, content) {
-    const posts = loadPosts();//이전 포스트 불러오기기
-    const next = [
-      { author, content, createdAt: Date.now() },
-      ...posts// post는 하나의 리스트, ...은 posts 리스트의 요소를 하나하나 next 리스트에 추가하는 역할
-    ];
-    savePosts(next);
-    renderPosts(next);
-  }
-
-  /**
    * 게시글 목록을 DOM에 렌더링한다.
-   * @param {Array<{author:string, content:string, createdAt:number}>} posts
+   * @param {Array<{author:string, content:string, created_at:string}>} posts
    */
   function renderPosts(posts) {
     postListEl.innerHTML = "";
@@ -74,7 +96,7 @@
 
       const timestamp = document.createElement("span");
       timestamp.className = "timestamp";
-      timestamp.textContent = formatDate(post.createdAt);
+      timestamp.textContent = formatDate(post.created_at);
 
       header.append(author, timestamp);
 
@@ -90,13 +112,13 @@
   }
 
   /**
-   * UNIX 타임스탬프를 보기 좋게 포맷한다.
-   * @param {number} ts
+   * ISO 8601 형식의 타임스탐프를 보기 좋게 포맷한다.
+   * @param {string} dateString
    * @returns {string}
    */
-  function formatDate(ts) {
-    if (!ts) return "";
-    const date = new Date(ts);
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 
@@ -113,7 +135,7 @@
    * 폼 제출을 처리하고 게시글을 추가한다.
    * @param {SubmitEvent} event
    */
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const author = authorInput.value.trim();
     const content = contentInput.value.trim();
@@ -121,12 +143,15 @@
       alert("이름과 게시글을 모두 입력해주세요.");
       return;
     }
-    addPost(author, content);
+    await addPost(author, content);
     form.reset();
     contentInput.blur();
   }
 
-  form.addEventListener("submit", handleSubmit);
+form.addEventListener("submit", handleSubmit);
 
-  renderPosts(loadPosts());
+// 초기 로드
+(async () => {
+  const posts = await loadPosts();
+  renderPosts(posts);
 })();

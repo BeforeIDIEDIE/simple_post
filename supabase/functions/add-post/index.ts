@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 }
 
 
@@ -35,11 +36,15 @@ Deno.serve(async (req) => {
 
     // --- [백엔드 검증 로직] ---
     if (!content || content.length < 2) {
-      throw new Error("글 내용이 너무 짧습니다 (최소 2자).")
+      throw new Error("type content length must be at least 2 characters.")
     }
-    
-    if (content.includes("멍청이")) { // 금지어 예시
-      throw new Error("부적절한 단어가 포함되어 있습니다.")
+    if(content.length>=500)
+      {
+      throw new Error("type content length must be less than 500 characters.")
+    }
+    if (content.includes("멍청이")) //나중에 금지어 목록을 DB에서 불러와서 검사하는 방식으로 개선 가능
+      { // 금지어 예시
+      throw new Error("inappropriate word detected in content.")
     }
     // ------------------------
 

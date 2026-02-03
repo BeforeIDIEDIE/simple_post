@@ -1,0 +1,20 @@
+# 환경 변수
+.env
+.env.local
+.env.*.local
+
+# 의존성
+node_modules/
+.deno/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 빌드 결과
+dist/
+build/
