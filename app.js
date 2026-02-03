@@ -3,7 +3,7 @@
 //npm run preview//프로덕션 빌드 결과물을 로컬에서 미리보기 할 때 작동하는 진입점 파일
 
 // type="module" 사용 시 IIFE 불필요 (이미 격리된 스코프)
-
+//// IIFE(Immediately Invoked Function Expression) : 즉시 실행 함수 표현식
 // import.meta는 ES module에서만 사용 가능
 
 // Supabase 설정 (환경변수에서 로드)
