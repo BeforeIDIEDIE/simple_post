@@ -48,10 +48,12 @@ Deno.serve(async (req) => {
     }
     // ------------------------
 
+    //해당부분은 supabase ->Edge functuion->secret에 환경변수로 저장해야함
     // 4. Supabase DB 연결 설정
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      //?? ''은 null병합연산자: 왼쪽값이 null이나 undefined일 때 오른쪽값을 반환
+      Deno.env.get('URL') ?? '',
+      Deno.env.get('SERVICE_ROLE_KEY') ?? ''
     )
 
     // 5. DB에 게시글 저장
