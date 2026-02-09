@@ -7,6 +7,7 @@
 // import.meta는 ES module에서만 사용 가능
 // Vite는 import.meta.env를 통해 환경변수를 제공한다. VITE_ 접두사가 붙은 변수만 클라이언트 코드에서 접근 가능하다.
 // Supabase 설정 (환경변수에서 로드)
+///
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/add-post`;
