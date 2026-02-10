@@ -1,8 +1,10 @@
 {
+  "_comment" : "이거 npm으로 실행할 수 있는 명령어들 적어놓은겨",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && npx wrangler pages deploy dist"
   },
   "devDependencies": {
     "supabase": "^2.72.8",
