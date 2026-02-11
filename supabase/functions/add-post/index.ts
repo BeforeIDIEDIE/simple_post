@@ -7,7 +7,7 @@
 
 //Deno환경에서 실행되게 설계하였음
 import "@supabase/functions-js/edge-runtime.d.ts"
-//라이브러리 불러오기
+//라이브러리 불러오기 
 import { createClient } from '@supabase/supabase-js'
 //supabase 클라이언트 생성
 
